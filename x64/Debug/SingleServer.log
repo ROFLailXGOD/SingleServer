@@ -1,5 +1,7 @@
 ﻿  Main.cpp
-c:\users\zabey\documents\visual studio 2015\projects\singleserver\main.cpp(10): warning C4101: 'stLocal': unreferenced local variable
-c:\users\zabey\documents\visual studio 2015\projects\singleserver\main.cpp(11): warning C4101: 'dwRet': unreferenced local variable
+c:\users\zabey\documents\visual studio 2015\projects\singleserver\main.cpp(11): warning C4101: 'stLocal': unreferenced local variable
+c:\users\zabey\documents\visual studio 2015\projects\singleserver\main.cpp(12): warning C4101: 'dwRet': unreferenced local variable
+c:\users\zabey\documents\visual studio 2015\projects\singleserver\main.cpp(28): warning C4267: 'initializing': conversion from 'size_t' to 'int', possible loss of data
+c:\users\zabey\documents\visual studio 2015\projects\singleserver\main.cpp(43): warning C4800: 'BOOL': forcing value to bool 'true' or 'false' (performance warning)
   SingleServer.vcxproj -> C:\Users\Zabey\Documents\Visual Studio 2015\Projects\SingleServer\x64\Debug\SingleServer.exe
   SingleServer.vcxproj -> C:\Users\Zabey\Documents\Visual Studio 2015\Projects\SingleServer\x64\Debug\SingleServer.pdb (Partial PDB)
