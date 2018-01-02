@@ -2,5 +2,5 @@ Alright, what is this? Well let me ask you a question before we start. Have you 
 
 Planned features:
 1. Creating BackUps (and a BackUp folder if needed) ✔
-2. Finding a proper process to work with
+2. Finding a proper process to work with ✔
 3. "Sleep" mode
