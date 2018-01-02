@@ -3,6 +3,7 @@
 #include <strsafe.h>
 #include <iostream>
 #include <string>
+#include <psapi.h>
 
 // Getting time in Double
 double GetLastWriteTime(HANDLE hFile, LPTSTR lpszString, DWORD dwSize) // Getting Last Write Time Obviously.
@@ -22,7 +23,7 @@ double GetLastWriteTime(HANDLE hFile, LPTSTR lpszString, DWORD dwSize) // Gettin
 	return dblt;
 }
 
-// Getting directory of a file or a file name
+// Getting directory of a file or a file name (flag = 0 to get directory, 1 to get name)
 std::wstring GetDirOrName(std::wstring path, bool flag)
 {
 	int i = path.find_last_of(L"/\\");
@@ -73,6 +74,81 @@ void CreateBackUp(std::wstring path, double date)
 	}
 }
 
+// Finding proper PID from array of PIDs
+bool FindPID(DWORD processID)
+{
+	TCHAR szProcessName[MAX_PATH] = TEXT("<unknown>");
+
+	// Get a handle to the process.
+
+	HANDLE hProcess = OpenProcess(PROCESS_QUERY_INFORMATION |
+		PROCESS_VM_READ,
+		FALSE, processID);
+
+	// Get the process name.
+
+	if (NULL != hProcess)
+	{
+		HMODULE hMod;
+		DWORD cbNeeded;
+
+		if (EnumProcessModules(hProcess, &hMod, sizeof(hMod),
+			&cbNeeded))
+		{
+			GetModuleBaseName(hProcess, hMod, szProcessName,
+				sizeof(szProcessName) / sizeof(TCHAR));
+		}
+	}
+
+	// Searching for Terraria.exe
+	if (_tcscmp(szProcessName, L"Terraria.exe") == 0)
+	{
+		std::cout << "Terraria.exe is running now!" << std::endl;
+		CloseHandle(hProcess);
+		return 1;
+	}
+
+	// Release the handle to the process.
+
+	CloseHandle(hProcess);
+	return 0;
+}
+
+// Getting Terraria.exe PID. Returns PID if Terraria is running. Otherwise returns 0
+DWORD GetPID()
+{
+	DWORD aProcesses[1024], cbNeeded, cProcesses;
+	DWORD cPID = 0;
+	unsigned int i;
+
+	if (!EnumProcesses(aProcesses, sizeof(aProcesses), &cbNeeded))
+	{
+		return 1;
+	}
+
+
+	// Calculate how many process identifiers were returned
+
+	cProcesses = cbNeeded / sizeof(DWORD);
+
+	// Cycle through every single process to find the right one (if exists)
+
+	for (i = 0; i < cProcesses; i++)
+	{
+		if (aProcesses[i] != 0)
+		{
+			if (FindPID(aProcesses[i]))
+			{
+				cPID = aProcesses[i];
+				break; // Found one, no need to search further
+			}
+		}
+	}
+
+	return cPID;
+}
+
+
 int main()
 {
 	HANDLE hFile1;
@@ -82,15 +158,14 @@ int main()
 	std::wstring File1Path = L"C:\\Users\\Zabey\\Documents\\My Games\\Terraria\\Worlds\\posos322.wld";
 //	std::wstring File1Path = L"d:\\1.txt";
 
-	hFile1 = CreateFile(File1Path.c_str(), GENERIC_READ, FILE_SHARE_READ, NULL,
+/*	hFile1 = CreateFile(File1Path.c_str(), GENERIC_READ, FILE_SHARE_READ, NULL,
 		OPEN_ALWAYS, 0, NULL);
 	hFile2 = CreateFile(L"d:\\1.txt", GENERIC_READ, FILE_SHARE_READ, NULL,
 		OPEN_ALWAYS, 0, NULL);
 
 	if ((hFile1 == INVALID_HANDLE_VALUE) || (hFile2 == INVALID_HANDLE_VALUE))
 	{
-		printf("CreateFile failed with %d\n", GetLastError());
-		return 0;
+		std::cout << "CreateFile failed with " << GetLastError() << std::endl;
 	}
 
 
@@ -110,7 +185,9 @@ int main()
 	CloseHandle(hFile2);
 
 	CreateBackUpFolder(File1Path);
-	CreateBackUp(File1Path, Time1);
+	CreateBackUp(File1Path, Time1); */
+
+	std::cout << GetPID() << std::endl;
 
 	system("PAUSE");
 }

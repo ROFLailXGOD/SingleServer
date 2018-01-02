@@ -1,7 +1,11 @@
 ﻿  Main.cpp
-c:\users\zabey\documents\visual studio 2015\projects\singleserver\main.cpp(11): warning C4101: 'stLocal': unreferenced local variable
-c:\users\zabey\documents\visual studio 2015\projects\singleserver\main.cpp(12): warning C4101: 'dwRet': unreferenced local variable
-c:\users\zabey\documents\visual studio 2015\projects\singleserver\main.cpp(28): warning C4267: 'initializing': conversion from 'size_t' to 'int', possible loss of data
-c:\users\zabey\documents\visual studio 2015\projects\singleserver\main.cpp(43): warning C4800: 'BOOL': forcing value to bool 'true' or 'false' (performance warning)
+c:\users\zabey\documents\visual studio 2015\projects\singleserver\main.cpp(12): warning C4101: 'stLocal': unreferenced local variable
+c:\users\zabey\documents\visual studio 2015\projects\singleserver\main.cpp(13): warning C4101: 'dwRet': unreferenced local variable
+c:\users\zabey\documents\visual studio 2015\projects\singleserver\main.cpp(29): warning C4267: 'initializing': conversion from 'size_t' to 'int', possible loss of data
+c:\users\zabey\documents\visual studio 2015\projects\singleserver\main.cpp(44): warning C4800: 'BOOL': forcing value to bool 'true' or 'false' (performance warning)
+c:\users\zabey\documents\visual studio 2015\projects\singleserver\main.cpp(156): warning C4101: 'szBuf1': unreferenced local variable
+c:\users\zabey\documents\visual studio 2015\projects\singleserver\main.cpp(155): warning C4101: 'hFile2': unreferenced local variable
+c:\users\zabey\documents\visual studio 2015\projects\singleserver\main.cpp(157): warning C4101: 'szBuf2': unreferenced local variable
+c:\users\zabey\documents\visual studio 2015\projects\singleserver\main.cpp(154): warning C4101: 'hFile1': unreferenced local variable
   SingleServer.vcxproj -> C:\Users\Zabey\Documents\Visual Studio 2015\Projects\SingleServer\x64\Debug\SingleServer.exe
   SingleServer.vcxproj -> C:\Users\Zabey\Documents\Visual Studio 2015\Projects\SingleServer\x64\Debug\SingleServer.pdb (Partial PDB)
