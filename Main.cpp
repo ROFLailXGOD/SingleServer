@@ -6,8 +6,17 @@
 #include <psapi.h>
 
 // Getting time in Double
-double GetLastWriteTime(HANDLE hFile, LPTSTR lpszString, DWORD dwSize) // Getting Last Write Time Obviously.
+double GetLastWriteTime(std::wstring FilePath) // Getting Last Write Time Obviously.
 {
+
+	HANDLE hFile = CreateFile(FilePath.c_str(), GENERIC_READ, FILE_SHARE_READ, NULL,
+		OPEN_ALWAYS, 0, NULL);
+
+	if (hFile == INVALID_HANDLE_VALUE)
+	{
+		std::cout << "CreateFile failed with " << GetLastError() << std::endl;
+	}
+
 	FILETIME ftCreate, ftAccess, ftWrite;
 	SYSTEMTIME stUTC, stLocal;
 	DWORD dwRet;
@@ -20,6 +29,9 @@ double GetLastWriteTime(HANDLE hFile, LPTSTR lpszString, DWORD dwSize) // Gettin
 	// Convert the last-write time to local time.
 	FileTimeToSystemTime(&ftWrite, &stUTC);
 	SystemTimeToVariantTime(&stUTC, &dblt);
+
+	CloseHandle(hFile);
+
 	return dblt;
 }
 
@@ -38,16 +50,16 @@ std::wstring GetDirOrName(std::wstring path, bool flag)
 }
 
 // Creating BackUpFolder only if not already exists
-void CreateBackUpFolder(std::wstring path)
+void CreateBackUpsFolder(std::wstring path)
 {
 
-	bool flag = CreateDirectory((GetDirOrName(path, 0) + L"\\BackUp").c_str(), NULL);
+	bool flag = CreateDirectory((GetDirOrName(path, 0) + L"\\BackUps").c_str(), NULL);
 	if (!flag)
 	{
 		if (GetLastError() == ERROR_ALREADY_EXISTS)
 		{
 			// it's okay
-			std::cout << "You already have a BackUp folder" << std::endl;
+			std::cout << "You already have a BackUps folder" << std::endl;
 		}
 		else
 		{
@@ -58,19 +70,37 @@ void CreateBackUpFolder(std::wstring path)
 }
 
 // Creating a backup
-void CreateBackUp(std::wstring path, double date)
+bool CreateBackUp(std::wstring path, double date)
 {
 	std::wstring name = GetDirOrName(path, 1);
 	std::wstring dir = GetDirOrName(path, 0);
-	std::wstring NewName = dir + L"\\BackUp\\" + name + std::to_wstring(date);
+	std::wstring NewName = dir + L"\\BackUps\\" + name + std::to_wstring(date);
 
 	if (CopyFile(path.c_str(), NewName.c_str(), 0))
 	{
-		std::cout << "New file has been successfully created" << std::endl;
+		std::cout << "New backup has been successfully created" << std::endl;
+		return 1;
 	}
 	else
 	{
-		std::cout << "Creating a new file has failed" << std::endl;
+		std::cout << "Creating a new backup has failed" << std::endl;
+		return 0;
+	}
+}
+
+// Updating files
+void UpdateFile(std::wstring from, std::wstring to, double date)
+{
+	if (CreateBackUp(to, date))
+	{
+		if (CopyFile(from.c_str(), to.c_str(), 0))
+		{
+			std::cout << "File has been successfully updated" << std::endl;
+		}
+		else
+		{
+			std::cout << "Updating a file has failed" << std::endl;
+		}
 	}
 }
 
@@ -149,45 +179,78 @@ DWORD GetPID()
 }
 
 
+
 int main()
 {
-	HANDLE hFile1;
-	HANDLE hFile2;
-	TCHAR szBuf1[MAX_PATH];
-	TCHAR szBuf2[MAX_PATH];
-	std::wstring File1Path = L"C:\\Users\\Zabey\\Documents\\My Games\\Terraria\\Worlds\\posos322.wld";
-//	std::wstring File1Path = L"d:\\1.txt";
 
-/*	hFile1 = CreateFile(File1Path.c_str(), GENERIC_READ, FILE_SHARE_READ, NULL,
-		OPEN_ALWAYS, 0, NULL);
-	hFile2 = CreateFile(L"d:\\1.txt", GENERIC_READ, FILE_SHARE_READ, NULL,
-		OPEN_ALWAYS, 0, NULL);
+	std::wstring File1Path = L"C:\\Users\\Zabey\\Documents\\My Games\\Terraria\\Worlds\\posos322.wld"; // Our CloudFolder
+	std::wstring File2Path = L"d:\\posos322.wld";
 
-	if ((hFile1 == INVALID_HANDLE_VALUE) || (hFile2 == INVALID_HANDLE_VALUE))
+	double Time1;
+	double Time2;
+
+	int iStage = 0;
+	for (;;)
 	{
-		std::cout << "CreateFile failed with " << GetLastError() << std::endl;
+		if (!iStage) // Initialization
+		{
+			CreateBackUpsFolder(File1Path); // Making sure that we have it
+			CreateBackUpsFolder(File2Path); // THIS IS A BULLSHIT, REMAKE THIS!!!
+			if (GetPID()) // Checking if Terraria is running
+						  // If yes, then we should wait until it's closed
+			{
+				iStage = 2;
+			}
+			else          // If no, then we can compare saves
+			{
+				Time1 = GetLastWriteTime(File1Path);
+				Time2 = GetLastWriteTime(File2Path);
+				if (Time1 > Time2)
+				{
+					UpdateFile(File1Path, File2Path, Time1);
+				}
+				else if (Time1 < Time2) // Should be impossible tbh, but just in case
+				{
+					UpdateFile(File2Path, File1Path, Time2);
+				}
+				iStage = 1;
+			}
+		}
+		else if (iStage == 1) // Game isn't running
+		{
+//			Sleep(10000);
+			if (GetPID())
+			{
+				iStage = 2;
+				std::cout << "Going to Stage 2" << std::endl;
+			}
+		}
+		else if (iStage == 2) // Game is running
+		{
+//			Sleep(10000);
+			if (!GetPID())
+			{
+				iStage = 3;
+				std::cout << "Going to Stage 3" << std::endl;
+			}
+		}
+		else if (iStage == 3) // Game isn't running anymore
+		{
+
+			Time1 = GetLastWriteTime(File1Path);
+			Time2 = GetLastWriteTime(File2Path);
+			if (Time1 > Time2) // Should be impossible tbh, but just in case
+			{
+				UpdateFile(File1Path, File2Path, Time1);
+			}
+			else if (Time1 < Time2)
+			{
+				UpdateFile(File2Path, File1Path, Time2);
+			}
+			iStage = 1;
+			std::cout << "Going back to Stage 1" << std::endl;
+		}
 	}
-
-
-	double Time1 = GetLastWriteTime(hFile1, szBuf1, MAX_PATH);
-	double Time2 = GetLastWriteTime(hFile2, szBuf2, MAX_PATH);
-	if (Time1 > Time2)
-	{
-		std::cout << "First" << std::endl;
-	}
-	else
-	{
-		std::cout << "Second" << std::endl;
-	}
-
-
-	CloseHandle(hFile1);
-	CloseHandle(hFile2);
-
-	CreateBackUpFolder(File1Path);
-	CreateBackUp(File1Path, Time1); */
-
-	std::cout << GetPID() << std::endl;
 
 	system("PAUSE");
 }
