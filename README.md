@@ -6,6 +6,7 @@ Features:
 1. Creating BackUps (and a BackUp folder if needed). You won't lose your file even if something goes wrong.
 2. "Sleep" mode - no unnecessary CPU load
 
-Planned features:
+To-do list:
 1. Interface
 2. Minimization to tray ability
+3. Proper program name. Now it's horrible xD
