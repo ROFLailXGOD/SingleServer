@@ -12,7 +12,7 @@ int main()
 	File1.SetPathAndName(FilePath);
 	Game Terraria;
 	Terraria.SetAppName(L"Terraria.exe");
-	Terraria.SetCloudFolder(L"D:\\");
+	Terraria.SetCloudFolder(L"C:\\Users\\Zabey\\Dropbox\\Terraria");
 
 	int iStage = 0;
 	for (;;)
@@ -26,12 +26,12 @@ int main()
 			}
 			else          // If no, then we can update saves
 			{
-				Terraria.UpdateFile(File1);
 				iStage = 1;
 			}
 		}
 		else if (iStage == 1) // Game isn't running
 		{
+			Terraria.UpdateFile(File1);
 			Sleep(10000);
 			if (Terraria.GetPID())
 			{

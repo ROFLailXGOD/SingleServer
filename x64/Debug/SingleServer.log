@@ -1,5 +1,3 @@
-﻿  Game.cpp
-c:\users\zabey\documents\visual studio 2015\projects\singleserver\game.cpp(59): warning C4800: 'BOOL': forcing value to bool 'true' or 'false' (performance warning)
-c:\users\zabey\documents\visual studio 2015\projects\singleserver\game.cpp(143): warning C4715: 'Game::UpdateFile': not all control paths return a value
+﻿  Main.cpp
   SingleServer.vcxproj -> C:\Users\Zabey\Documents\Visual Studio 2015\Projects\SingleServer\x64\Debug\SingleServer.exe
   SingleServer.vcxproj -> C:\Users\Zabey\Documents\Visual Studio 2015\Projects\SingleServer\x64\Debug\SingleServer.pdb (Partial PDB)
