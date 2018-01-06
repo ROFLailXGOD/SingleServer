@@ -1,7 +1,5 @@
-﻿  Main.cpp
-c:\users\zabey\documents\visual studio 2015\projects\singleserver\main.cpp(21): warning C4101: 'stLocal': unreferenced local variable
-c:\users\zabey\documents\visual studio 2015\projects\singleserver\main.cpp(22): warning C4101: 'dwRet': unreferenced local variable
-c:\users\zabey\documents\visual studio 2015\projects\singleserver\main.cpp(41): warning C4267: 'initializing': conversion from 'size_t' to 'int', possible loss of data
-c:\users\zabey\documents\visual studio 2015\projects\singleserver\main.cpp(56): warning C4800: 'BOOL': forcing value to bool 'true' or 'false' (performance warning)
+﻿  Game.cpp
+c:\users\zabey\documents\visual studio 2015\projects\singleserver\game.cpp(59): warning C4800: 'BOOL': forcing value to bool 'true' or 'false' (performance warning)
+c:\users\zabey\documents\visual studio 2015\projects\singleserver\game.cpp(143): warning C4715: 'Game::UpdateFile': not all control paths return a value
   SingleServer.vcxproj -> C:\Users\Zabey\Documents\Visual Studio 2015\Projects\SingleServer\x64\Debug\SingleServer.exe
   SingleServer.vcxproj -> C:\Users\Zabey\Documents\Visual Studio 2015\Projects\SingleServer\x64\Debug\SingleServer.pdb (Partial PDB)
