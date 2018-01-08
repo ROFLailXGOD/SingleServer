@@ -7,12 +7,14 @@
 int main()
 {
 
+	//std::wstring FilePath = L"C:\\Users\\vgork\\OneDrive\\Документы\\My Games\\Terraria\\Worlds\\posos322.wld";
 	std::wstring FilePath = L"C:\\Users\\Zabey\\Documents\\My Games\\Terraria\\Worlds\\posos322.wld";
-	Save File1;
+	File File1;
 	File1.SetPathAndName(FilePath);
-	Game Terraria;
+	Application Terraria;
 	Terraria.SetAppName(L"Terraria.exe");
-	Terraria.SetCloudFolder(L"C:\\Users\\Zabey\\Dropbox\\Terraria");
+	//Terraria.SetCloudFolder(L"C:\\Users\\Vgork\\OneDrive\\Terraria");
+	Terraria.SetCloudFolder(L"C:\\Users\\Zabey\\OneDrive\\Terraria");
 
 	int iStage = 0;
 	for (;;)
@@ -29,7 +31,7 @@ int main()
 				iStage = 1;
 			}
 		}
-		else if (iStage == 1) // Game isn't running
+		else if (iStage == 1) // Application isn't running
 		{
 			Terraria.UpdateFile(File1);
 			Sleep(10000);
@@ -39,7 +41,7 @@ int main()
 				std::cout << "Going to Stage 2" << std::endl;
 			}
 		}
-		else if (iStage == 2) // Game is running
+		else if (iStage == 2) // Application is running
 		{
 			Sleep(10000);
 			if (!Terraria.GetPID())
@@ -48,7 +50,7 @@ int main()
 				std::cout << "Going to Stage 3" << std::endl;
 			}
 		}
-		else if (iStage == 3) // Game isn't running anymore
+		else if (iStage == 3) // Application isn't running anymore
 		{
 			Terraria.UpdateFile(File1);
 			iStage = 1;

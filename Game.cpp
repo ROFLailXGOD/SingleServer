@@ -6,7 +6,7 @@
 #include <psapi.h>
 #include <tchar.h>
 
-bool Game::SetAppName(std::wstring name)
+bool Application::SetAppName(std::wstring name)
 {
 	std::size_t i = name.find(L".exe");
 	if (i >= 0)
@@ -21,7 +21,7 @@ bool Game::SetAppName(std::wstring name)
 	}
 }
 
-bool Game::SetCloudFolder(std::wstring path)
+bool Application::SetCloudFolder(std::wstring path)
 {
 	std::size_t i = path.find_last_of(L"/\\");
 	if (i >= 0)
@@ -38,7 +38,7 @@ bool Game::SetCloudFolder(std::wstring path)
 	}
 }
 
-bool Game::SetBackUpsFolder(std::wstring path)
+bool Application::SetBackUpsFolder(std::wstring path)
 {
 	std::size_t i = path.find_last_of(L"/\\");
 	if (i >= 0)
@@ -54,7 +54,7 @@ bool Game::SetBackUpsFolder(std::wstring path)
 }
 
 // Creating BackUpFolder only if not already exists
-bool Game::CreateBackUpsFolder() const
+bool Application::CreateBackUpsFolder() const
 {
 	bool flag = CreateDirectory(BackUpsFolder.c_str(), NULL);
 	if (!flag)
@@ -77,7 +77,7 @@ bool Game::CreateBackUpsFolder() const
 }
 
 // Creating a backup
-bool Game::CreateBackUp(const Save &SaveFile) const
+bool Application::CreateBackUp(const File &SaveFile) const
 {
 	std::wstring name = SaveFile.GetName();
 	std::wstring path = SaveFile.GetPath();
@@ -96,18 +96,19 @@ bool Game::CreateBackUp(const Save &SaveFile) const
 }
 
 // Updating files
-bool Game::UpdateFile(Save &SaveFile) const
+bool Application::UpdateFile(File &SaveFile) const
 {
 	std::wstring name = SaveFile.GetName();
 	std::wstring NewName = CloudFolder + L"\\" + name;
-	Save CloudSave;
+	File CloudSave;
 	CloudSave.SetPathAndName(NewName);
 	CloudSave.SetLWTime();
 	SaveFile.SetLWTime();
-	if (SaveFile.GetLWTime() > CloudSave.GetLWTime())
+	if (CreateBackUp(SaveFile))
 	{
-		if (CreateBackUp(CloudSave))
+		if (SaveFile.GetLWTime() > CloudSave.GetLWTime())
 		{
+
 			if (CopyFile(SaveFile.GetPath().c_str(), CloudSave.GetPath().c_str(), 0))
 			{
 				std::cout << "File has been successfully updated" << std::endl;
@@ -119,10 +120,7 @@ bool Game::UpdateFile(Save &SaveFile) const
 				return 0;
 			}
 		}
-	}
-	else if (SaveFile.GetLWTime() < CloudSave.GetLWTime())
-	{
-		if (CreateBackUp(SaveFile))
+		else if (SaveFile.GetLWTime() < CloudSave.GetLWTime())
 		{
 			if (CopyFile(CloudSave.GetPath().c_str(), SaveFile.GetPath().c_str(), 0))
 			{
@@ -135,15 +133,15 @@ bool Game::UpdateFile(Save &SaveFile) const
 				return 0;
 			}
 		}
-	}
-	else
-	{
-		std::wcout << "No need to update " << SaveFile.GetName() << std::endl;
+		else
+		{
+			std::wcout << "No need to update " << SaveFile.GetName() << std::endl;
+		}
 	}
 }
 
 // Finding proper PID from array of PIDs
-bool Game::FindPID(DWORD processID) const
+bool Application::FindPID(DWORD processID) const
 {
 	TCHAR szProcessName[MAX_PATH] = TEXT("<unknown>");
 
@@ -183,7 +181,7 @@ bool Game::FindPID(DWORD processID) const
 }
 
 // Getting Application PID. Returns PID if Application is running. Otherwise returns 0
-DWORD Game::GetPID() const
+DWORD Application::GetPID() const
 {
 	DWORD aProcesses[1024], cbNeeded, cProcesses;
 	DWORD cPID = 0;

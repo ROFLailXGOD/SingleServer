@@ -3,7 +3,7 @@
 #include <windows.h>
 #include <iostream>
 
-bool Save::SetLWTime()
+bool File::SetLWTime()
 {
 	HANDLE hFile = CreateFile(path.c_str(), GENERIC_READ, FILE_SHARE_READ, NULL,
 		OPEN_ALWAYS, 0, NULL);
@@ -33,12 +33,12 @@ bool Save::SetLWTime()
 	return 1;
 }
 
-double Save::GetLWTime() const
+double File::GetLWTime() const
 {
 	return time;
 }
 
-bool Save::SetPathAndName(std::wstring dir)
+bool File::SetPathAndName(std::wstring dir)
 {
 	path = dir;
 	std::size_t i = dir.find_last_of(L"/\\");
@@ -54,12 +54,12 @@ bool Save::SetPathAndName(std::wstring dir)
 	}
 }
 
-std::wstring Save::GetPath() const
+std::wstring File::GetPath() const
 {
 	return path;
 }
 
-std::wstring Save::GetName() const
+std::wstring File::GetName() const
 {
 	return name;
 }
