@@ -9,4 +9,4 @@ Features:
 To-do list:
 1. Interface
 2. Minimization to tray ability
-3. Proper program name. Now it's horrible xD
+3. Proper program name. For the time being it's horrible xD
