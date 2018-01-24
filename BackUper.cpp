@@ -13,7 +13,7 @@ BackUper::BackUper(const Application &objA, std::wstring path)
 	bHasLinkedApp = true;
 }
 
-File BackUper::GetFile() const
+File& BackUper::GetFile()
 {
 	return cFile;
 }

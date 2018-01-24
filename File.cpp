@@ -122,38 +122,41 @@ bool File::UpdateFile()
 //	CloudSave.SetPathAndName(NewName);
 	CloudSave.SetLWTime();
 	SetLWTime();
-	if (CreateBackUp())
+//	if (CreateBackUp())
+	if (GetLWTime() == CloudSave.GetLWTime())
 	{
-		if (GetLWTime() > CloudSave.GetLWTime())
+		std::wcout << "No need to update " << GetName() << std::endl;
+	}
+	else
+	{	
+		if (CreateBackUp())
 		{
-
-			if (CopyFile(GetPath().c_str(), CloudSave.GetPath().c_str(), 0))
+			if (GetLWTime() > CloudSave.GetLWTime())
 			{
-				std::cout << "File has been successfully updated" << std::endl;
-				return 1;
+				if (CopyFile(GetPath().c_str(), CloudSave.GetPath().c_str(), 0))
+				{
+					std::cout << "File has been successfully updated (stored to Cloud Folder)" << std::endl;
+					return 1;
+				}
+				else
+				{
+					std::cout << "Updating a file has failed" << std::endl;
+					return 0;
+				}
 			}
-			else
+			else if (GetLWTime() < CloudSave.GetLWTime())
 			{
-				std::cout << "Updating a file has failed" << std::endl;
-				return 0;
+				if (CopyFile(CloudSave.GetPath().c_str(), GetPath().c_str(), 0))
+				{
+					std::cout << "File has been successfully updated (stored from Cloud Folder)" << std::endl;
+					return 1;
+				}
+				else
+				{
+					std::cout << "Updating a file has failed" << std::endl;
+					return 0;
+				}
 			}
-		}
-		else if (GetLWTime() < CloudSave.GetLWTime())
-		{
-			if (CopyFile(CloudSave.GetPath().c_str(), GetPath().c_str(), 0))
-			{
-				std::cout << "File has been successfully updated" << std::endl;
-				return 1;
-			}
-			else
-			{
-				std::cout << "Updating a file has failed" << std::endl;
-				return 0;
-			}
-		}
-		else
-		{
-			std::wcout << "No need to update " << GetName() << std::endl;
 		}
 	}
 }

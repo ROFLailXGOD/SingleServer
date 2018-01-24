@@ -13,6 +13,6 @@ public:
 	BackUper(std::wstring);
 	BackUper(const Application&, std::wstring);
 
-	File GetFile() const;
+	File& GetFile();
 	Application GetApp() const;
 };
