@@ -111,13 +111,15 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="Game.cpp" />
+    <ClCompile Include="Application.cpp" />
+    <ClCompile Include="BackUper.cpp" />
     <ClCompile Include="Main.cpp" />
-    <ClCompile Include="Save.cpp" />
+    <ClCompile Include="File.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Game.h" />
-    <ClInclude Include="Save.h" />
+    <ClInclude Include="Application.h" />
+    <ClInclude Include="BackUper.h" />
+    <ClInclude Include="File.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
