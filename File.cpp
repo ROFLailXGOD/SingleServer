@@ -1,7 +1,7 @@
 #include "File.h"
 #include <string>
 #include <windows.h>
-#include <iostream>
+#include <QDebug>
 
 File::File(){}
 
@@ -17,13 +17,12 @@ bool File::SetLWTime()
 
 	if (hFile == INVALID_HANDLE_VALUE)
 	{
-		std::cout << "CreateFile failed with " << GetLastError() << std::endl;
+        qInfo() << "CreateFile failed with " << GetLastError();
 		return 0;
 	}
 
 	FILETIME ftCreate, ftAccess, ftWrite;
-	SYSTEMTIME stUTC, stLocal;
-	DWORD dwRet;
+    SYSTEMTIME stUTC;
 	double dblt;
 
 	// Retrieve the file times for the file.
@@ -56,7 +55,7 @@ bool File::SetPathAndName(std::wstring dir)
 	}
 	else
 	{
-		std::cout << "Your path is probably broken" << std::endl;
+        qInfo() << "Your path is probably broken";
 		return 0;
 	}
 }
@@ -80,17 +79,17 @@ bool File::CreateBackUpsFolder() const
 		if (GetLastError() == ERROR_ALREADY_EXISTS)
 		{
 			// it's okay
-			std::cout << "You already have a BackUps folder" << std::endl;
+            qInfo() << "You already have a BackUps folder";
 			return 1;
 		}
 		else
 		{
 			// smth went wrong, we need a valid "path"
-			std::cout << "Looks like your path is broken. We need a new one" << std::endl;
+            qInfo() << "Looks like your path is broken. We need a new one";
 			return 0;
 		}
 	}
-	std::cout << "BackUps folder was successfully created" << std::endl;
+    qInfo() << "BackUps folder was successfully created";
 	return 1;
 }
 
@@ -103,12 +102,12 @@ bool File::CreateBackUp() const
 
 	if (CopyFile(path.c_str(), NewName.c_str(), 0))
 	{
-		std::cout << "New backup has been successfully created" << std::endl;
+        qInfo() << "New backup has been successfully created";
 		return 1;
 	}
 	else
 	{
-		std::cout << "Creating a new backup has failed" << std::endl;
+        qInfo() << "Creating a new backup has failed";
 		return 0;
 	}
 }
@@ -119,13 +118,12 @@ bool File::UpdateFile()
 	std::wstring name = GetName();
 	std::wstring NewName = CloudFolder + L"\\" + name;
 	File CloudSave(NewName);
-//	CloudSave.SetPathAndName(NewName);
 	CloudSave.SetLWTime();
 	SetLWTime();
-//	if (CreateBackUp())
 	if (GetLWTime() == CloudSave.GetLWTime())
 	{
-		std::wcout << "No need to update " << GetName() << std::endl;
+        qInfo() << "No need to update " << GetName();
+        return 0;
 	}
 	else
 	{	
@@ -135,12 +133,12 @@ bool File::UpdateFile()
 			{
 				if (CopyFile(GetPath().c_str(), CloudSave.GetPath().c_str(), 0))
 				{
-					std::cout << "File has been successfully updated (stored to Cloud Folder)" << std::endl;
+                    qInfo() << "File has been successfully updated (stored to Cloud Folder)";
 					return 1;
 				}
 				else
 				{
-					std::cout << "Updating a file has failed" << std::endl;
+                    qInfo() << "Updating a file has failed";
 					return 0;
 				}
 			}
@@ -148,16 +146,20 @@ bool File::UpdateFile()
 			{
 				if (CopyFile(CloudSave.GetPath().c_str(), GetPath().c_str(), 0))
 				{
-					std::cout << "File has been successfully updated (stored from Cloud Folder)" << std::endl;
+                    qInfo() << "File has been successfully updated (stored from Cloud Folder)";
 					return 1;
 				}
 				else
 				{
-					std::cout << "Updating a file has failed" << std::endl;
+                    qInfo() << "Updating a file has failed";
 					return 0;
 				}
 			}
 		}
+        else
+        {
+            return 0;
+        }
 	}
 }
 
@@ -173,7 +175,7 @@ bool File::SetCloudFolder(std::wstring path)
 	}
 	else
 	{
-		std::cout << "Your path is broken" << std::endl;
+        qInfo() << "Your path is broken";
 		return 0;
 	}
 }
@@ -188,7 +190,7 @@ bool File::SetBackUpsFolder(std::wstring path)
 	}
 	else
 	{
-		std::cout << "Your path is broken" << std::endl;
+        qInfo() << "Your path is broken";
 		return 0;
 	}
 }

@@ -2,9 +2,9 @@
 #include "File.h"
 #include <windows.h>
 #include <string>
-#include <iostream>
 #include <psapi.h>
 #include <tchar.h>
+#include <QDebug>
 
 Application::Application(){}
 
@@ -23,7 +23,7 @@ bool Application::SetAppName(std::wstring name)
 	}
 	else
 	{
-		std::cout << "Your Application name is incorrect" << std::endl;
+        qInfo() << "Your Application name is incorrect";
 		return 0;
 	}
 }
@@ -57,7 +57,7 @@ bool Application::FindPID(DWORD processID) const
 	// Searching for AppName
 	if (_tcscmp(szProcessName, AppName.c_str()) == 0)
 	{
-		std::wcout << AppName << " is running now!" << std::endl;
+        qInfo() << AppName << " is running now!";
 		CloseHandle(hProcess);
 		return 1;
 	}
