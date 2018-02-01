@@ -21,6 +21,8 @@ public:
 private slots:
     void MainLoop();
 
+    void on_pushButton_clicked();
+
 private:
     Ui::MainWindow *ui;
 };
