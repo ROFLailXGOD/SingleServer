@@ -14,6 +14,7 @@ public:
 	Application(std::wstring);
 
 	bool SetAppName(std::wstring);
+    std::wstring GetAppName();
 
 	bool IsRunning() const; // Looks through all PIDs
 };

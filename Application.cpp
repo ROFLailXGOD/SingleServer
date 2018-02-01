@@ -28,6 +28,11 @@ bool Application::SetAppName(std::wstring name)
 	}
 }
 
+std::wstring Application::GetAppName()
+{
+    return AppName;
+}
+
 // Finding proper PID from array of PIDs
 bool Application::FindPID(DWORD processID) const
 {
