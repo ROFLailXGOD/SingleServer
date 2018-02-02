@@ -6,6 +6,7 @@
 
 #include <QTimer>
 #include <QFileDialog>
+#include <QDebug>
 
 #include <string>
 
@@ -31,9 +32,9 @@ void MainWindow::MainLoop()
 {
     for (int i = 0; i < arr.size(); ++i)
     {
-        if (arr[i].bHasLinkedApp)
+        if (arr.at(i).bHasLinkedApp)
         {
-            if (!arr[i].GetApp().IsRunning()) // Making sure that App isn't running
+            if (!arr.at(i).GetApp().IsRunning()) // Making sure that App isn't running
             {
                 (arr[i].GetFile()).UpdateFile();
             }
@@ -47,11 +48,22 @@ void MainWindow::MainLoop()
 
 void MainWindow::on_pushButton_clicked()
 {
+    QList<QTreeWidgetItem *> selectedItems = ui->treeWidget->selectedItems();
+    qInfo() << selectedItems.size();
+    for (int i = 0; i < selectedItems.size(); ++i)
+    {
+        if (!selectedItems.at(i)->parent())
+        {
+
+        }
+    }
+
+
     QStringList pathes = QFileDialog::getOpenFileNames(
                 this,
-                tr("Выберите приложение"),
+                tr("Выберите одно или несколько приложений"),
                 ".",
-                "Executables (*.exe)"
+                "Исполняемые файлы (*.exe)"
                 );
     for (int i = 0; i < pathes.size(); ++i)
     {

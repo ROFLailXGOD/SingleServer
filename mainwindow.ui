@@ -35,6 +35,12 @@
       <height>401</height>
      </rect>
     </property>
+    <property name="selectionMode">
+     <enum>QAbstractItemView::ExtendedSelection</enum>
+    </property>
+    <property name="selectionBehavior">
+     <enum>QAbstractItemView::SelectRows</enum>
+    </property>
     <column>
      <property name="text">
       <string>Синхронизируемые файлы</string>
