@@ -63,15 +63,24 @@ void MainWindow::Selector()
                     selectedItems.at(i)->setSelected(0);
                 }
             }
+            ui->pushButton->setText("Добавить приложения");
         }
-        else // Select all
+        else // Select only parents
         {
-            for (int i = 0; i < selectedItems.size(); ++i)
+            for (int i = 1; i < selectedItems.size(); ++i)
             {
-                for (int j = 0; j < selectedItems.at(i)->childCount(); ++j)
+                if (selectedItems.at(i)->parent())
                 {
-                    selectedItems.at(i)->child(j)->setSelected(1);
+                    selectedItems.at(i)->setSelected(0);
                 }
+            }
+            if (selectedItems.size() == 1)
+            {
+                ui->pushButton->setText("Добавить файлы");
+            }
+            else
+            {
+                ui->pushButton->setText("Добавить приложения");
             }
         }
     }
@@ -84,8 +93,7 @@ void MainWindow::Selector()
 void MainWindow::on_pushButton_clicked()
 {
     QList<QTreeWidgetItem *> selectedItems = ui->treeWidget->selectedItems();
-    qInfo() << selectedItems.size();
-    if (selectedItems.size() == 0)
+    if (ui->pushButton->text() == "Добавить приложения")
     {
         QStringList pathes = QFileDialog::getOpenFileNames(
                     this,
@@ -105,6 +113,34 @@ void MainWindow::on_pushButton_clicked()
                 QVariant RootApp = QVariant::fromValue(App);
                 item->setData(0,Qt::UserRole+1,RootApp);
                 ui->treeWidget->addTopLevelItem(item);
+            }
+        }
+    }
+    else
+    {
+        QStringList pathes = QFileDialog::getOpenFileNames(
+                    this,
+                    tr("Выберите один или несколько файлов"),
+                    ".",
+                    "Любые файлы (*.*)"
+                    );
+        for (int i = 0; i < pathes.size(); ++i)
+        {
+            if (!pathes.at(i).isEmpty())
+            {
+                QVariant itemData = selectedItems.at(0)->data(0, Qt::UserRole + 1);
+                Application App = itemData.value<Application>();
+                BackUper Bcpr(App, pathes.at(i).toStdWString());
+                arr.push_back(Bcpr);
+                QTreeWidgetItem *item = new QTreeWidgetItem(); // Creating leaves
+                QString name = QString::fromWCharArray(Bcpr.GetFile().GetName().c_str());
+                item->setText(0, name);
+                QVariant qvBcpr = QVariant::fromValue(Bcpr);
+                item->setData(0,Qt::UserRole+1,qvBcpr);
+                item->setTextColor(0,Qt::darkRed);
+                item->setToolTip(0, "Добавьте Облачную папку");
+                selectedItems.at(0)->addChild(item);
+                selectedItems.at(0)->setExpanded(1);
             }
         }
     }

@@ -1,4 +1,5 @@
 #pragma once
+#include<QMetaType>
 #include "File.h"
 #include "Application.h"
 
@@ -10,9 +11,11 @@ private:
 public:
 	bool bHasLinkedApp; // Is file linked with an application?
 
+    BackUper();
 	BackUper(std::wstring);
 	BackUper(const Application&, std::wstring);
 
 	File& GetFile();
 	Application GetApp() const;
 };
+Q_DECLARE_METATYPE(BackUper)

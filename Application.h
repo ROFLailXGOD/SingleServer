@@ -19,4 +19,4 @@ public:
 
 	bool IsRunning() const; // Looks through all PIDs
 };
-Q_DECLARE_METATYPE(Application);
+Q_DECLARE_METATYPE(Application)

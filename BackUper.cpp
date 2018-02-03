@@ -1,5 +1,7 @@
 #include "BackUper.h"
 
+BackUper::BackUper(){}
+
 BackUper::BackUper(std::wstring path)
 {
 	cFile = File(path);
