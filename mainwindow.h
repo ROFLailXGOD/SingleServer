@@ -20,6 +20,7 @@ public:
 
 private slots:
     void MainLoop();
+    void Selector();
 
     void on_pushButton_clicked();
 

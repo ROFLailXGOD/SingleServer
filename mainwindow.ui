@@ -52,12 +52,12 @@
      <rect>
       <x>410</x>
       <y>100</y>
-      <width>91</width>
+      <width>131</width>
       <height>21</height>
      </rect>
     </property>
     <property name="text">
-     <string>Добавить файл</string>
+     <string>Добавить приложения</string>
     </property>
    </widget>
   </widget>

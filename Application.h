@@ -1,4 +1,5 @@
 #pragma once
+#include <QMetaType>
 #include <string>
 #include <Windows.h>
 class File;
@@ -14,7 +15,8 @@ public:
 	Application(std::wstring);
 
 	bool SetAppName(std::wstring);
-    std::wstring GetAppName();
+    std::wstring GetAppName() const;
 
 	bool IsRunning() const; // Looks through all PIDs
 };
+Q_DECLARE_METATYPE(Application);

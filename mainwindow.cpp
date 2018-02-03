@@ -6,6 +6,7 @@
 
 #include <QTimer>
 #include <QFileDialog>
+#include <QVariant>
 #include <QDebug>
 
 #include <string>
@@ -21,6 +22,8 @@ MainWindow::MainWindow(QWidget *parent) :
     QTimer *mainTimer = new QTimer(this);
     connect(mainTimer, SIGNAL(timeout()), this, SLOT(MainLoop()));
     mainTimer->start(15000);
+
+    connect(ui->treeWidget, SIGNAL(itemSelectionChanged()), this, SLOT(Selector()));
 }
 
 MainWindow::~MainWindow()
@@ -46,39 +49,63 @@ void MainWindow::MainLoop()
     }
 }
 
+void MainWindow::Selector()
+{
+    QList<QTreeWidgetItem *> selectedItems = ui->treeWidget->selectedItems();
+    if (selectedItems.size())
+    {
+        if (selectedItems.at(0)->parent()) // Select only children
+        {
+            for (int i = 1; i < selectedItems.size(); ++i)
+            {
+                if (!selectedItems.at(i)->parent())
+                {
+                    selectedItems.at(i)->setSelected(0);
+                }
+            }
+        }
+        else // Select all
+        {
+            for (int i = 0; i < selectedItems.size(); ++i)
+            {
+                for (int j = 0; j < selectedItems.at(i)->childCount(); ++j)
+                {
+                    selectedItems.at(i)->child(j)->setSelected(1);
+                }
+            }
+        }
+    }
+    else
+    {
+        ui->pushButton->setText("Добавить приложения");
+    }
+}
+
 void MainWindow::on_pushButton_clicked()
 {
     QList<QTreeWidgetItem *> selectedItems = ui->treeWidget->selectedItems();
     qInfo() << selectedItems.size();
-    for (int i = 0; i < selectedItems.size(); ++i)
+    if (selectedItems.size() == 0)
     {
-        if (!selectedItems.at(i)->parent())
+        QStringList pathes = QFileDialog::getOpenFileNames(
+                    this,
+                    tr("Выберите одно или несколько приложений"),
+                    ".",
+                    "Исполняемые файлы (*.exe)"
+                    );
+        for (int i = 0; i < pathes.size(); ++i)
         {
-
-        }
-    }
-
-
-    QStringList pathes = QFileDialog::getOpenFileNames(
-                this,
-                tr("Выберите одно или несколько приложений"),
-                ".",
-                "Исполняемые файлы (*.exe)"
-                );
-    for (int i = 0; i < pathes.size(); ++i)
-    {
-        if (!pathes.at(i).isEmpty())
-        {
-            QFileInfo fileinfo(pathes.at(i));
-            QString name = fileinfo.fileName();
-            Application App(name.toStdWString());
-            BackUper File(App, L"C:\\Users\\Zabey\\Documents\\My Games\\Terraria\\Worlds\\posos322.wld");
-            (File.GetFile()).SetCloudFolder(L"C:\\Users\\Zabey\\OneDrive\\Terraria");
-            arr.push_back(File);
-
-            QTreeWidgetItem *item = new QTreeWidgetItem();
-            item->setText(0, name);
-            ui->treeWidget->addTopLevelItem(item);
+            if (!pathes.at(i).isEmpty())
+            {
+                QFileInfo fileinfo(pathes.at(i));
+                QString name = fileinfo.fileName();
+                Application App(name.toStdWString());
+                QTreeWidgetItem *item = new QTreeWidgetItem(); // Creating Roots
+                item->setText(0, name);
+                QVariant RootApp = QVariant::fromValue(App);
+                item->setData(0,Qt::UserRole+1,RootApp);
+                ui->treeWidget->addTopLevelItem(item);
+            }
         }
     }
 }

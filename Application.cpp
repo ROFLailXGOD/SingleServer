@@ -28,7 +28,7 @@ bool Application::SetAppName(std::wstring name)
 	}
 }
 
-std::wstring Application::GetAppName()
+std::wstring Application::GetAppName() const
 {
     return AppName;
 }
