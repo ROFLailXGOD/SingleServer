@@ -6,13 +6,15 @@ BackUper::BackUper(std::wstring path)
 {
 	cFile = File(path);
 	bHasLinkedApp = false;
+    bSynch = 0;
 }
 
-BackUper::BackUper(const Application &objA, std::wstring path)
+BackUper::BackUper(Application *objA, std::wstring path)
 {
 	cFile = File(path);
 	App = objA;
 	bHasLinkedApp = true;
+    bSynch = 0;
 }
 
 File& BackUper::GetFile()
@@ -22,5 +24,10 @@ File& BackUper::GetFile()
 
 Application BackUper::GetApp() const
 {
-	return App;
+    return *App;
+}
+
+bool BackUper::isSynched()
+{
+    return bSynch;
 }

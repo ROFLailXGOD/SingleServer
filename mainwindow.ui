@@ -31,7 +31,7 @@
      <rect>
       <x>30</x>
       <y>60</y>
-      <width>256</width>
+      <width>631</width>
       <height>401</height>
      </rect>
     </property>
@@ -46,19 +46,40 @@
       <string>Синхронизируемые файлы</string>
      </property>
     </column>
+    <column>
+     <property name="text">
+      <string>Путь до Облака</string>
+     </property>
+    </column>
    </widget>
-   <widget class="QPushButton" name="pushButton">
+   <widget class="QWidget" name="">
     <property name="geometry">
      <rect>
-      <x>410</x>
-      <y>100</y>
-      <width>131</width>
-      <height>21</height>
+      <x>110</x>
+      <y>500</y>
+      <width>281</width>
+      <height>25</height>
      </rect>
     </property>
-    <property name="text">
-     <string>Добавить приложения</string>
-    </property>
+    <layout class="QHBoxLayout" name="horizontalLayout">
+     <item>
+      <widget class="QPushButton" name="pushButton">
+       <property name="text">
+        <string>Добавить приложения</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QPushButton" name="pushButton_2">
+       <property name="enabled">
+        <bool>false</bool>
+       </property>
+       <property name="text">
+        <string>Указать облачную папку</string>
+       </property>
+      </widget>
+     </item>
+    </layout>
    </widget>
   </widget>
   <widget class="QMenuBar" name="menuBar">

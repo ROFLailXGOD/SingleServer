@@ -1,10 +1,5 @@
 #include "mainwindow.h"
 #include <QApplication>
-#include <string>
-#include <vector>
-#include "Application.h"
-#include "File.h"
-#include "BackUper.h"
 
 int main(int argc, char *argv[])
 {

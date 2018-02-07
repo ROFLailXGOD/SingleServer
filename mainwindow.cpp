@@ -24,6 +24,8 @@ MainWindow::MainWindow(QWidget *parent) :
     mainTimer->start(15000);
 
     connect(ui->treeWidget, SIGNAL(itemSelectionChanged()), this, SLOT(Selector()));
+
+    ui->treeWidget->setColumnWidth(0, 200);
 }
 
 MainWindow::~MainWindow()
@@ -35,16 +37,16 @@ void MainWindow::MainLoop()
 {
     for (int i = 0; i < arr.size(); ++i)
     {
-        if (arr.at(i).bHasLinkedApp)
+        if (arr.at(i)->bHasLinkedApp)
         {
-            if (!arr.at(i).GetApp().IsRunning()) // Making sure that App isn't running
+            if (!arr.at(i)->GetApp().IsRunning()) // Making sure that App isn't running
             {
-                (arr[i].GetFile()).UpdateFile();
+//                (arr[i].GetFile()).UpdateFile();
             }
         }
         else
         {
-            (arr[i].GetFile()).UpdateFile();
+//            (arr[i].GetFile()).UpdateFile();
         }
     }
 }
@@ -83,10 +85,12 @@ void MainWindow::Selector()
                 ui->pushButton->setText("Добавить приложения");
             }
         }
+        ui->pushButton_2->setEnabled(1);
     }
     else
     {
         ui->pushButton->setText("Добавить приложения");
+        ui->pushButton_2->setEnabled(0);
     }
 }
 
@@ -98,7 +102,7 @@ void MainWindow::on_pushButton_clicked()
         QStringList pathes = QFileDialog::getOpenFileNames(
                     this,
                     tr("Выберите одно или несколько приложений"),
-                    ".",
+                    "/",
                     "Исполняемые файлы (*.exe)"
                     );
         for (int i = 0; i < pathes.size(); ++i)
@@ -107,10 +111,12 @@ void MainWindow::on_pushButton_clicked()
             {
                 QFileInfo fileinfo(pathes.at(i));
                 QString name = fileinfo.fileName();
-                Application App(name.toStdWString());
+                Application *App = new Application(name.toStdWString());
                 QTreeWidgetItem *item = new QTreeWidgetItem(); // Creating Roots
                 item->setText(0, name);
                 QVariant RootApp = QVariant::fromValue(App);
+
+
                 item->setData(0,Qt::UserRole+1,RootApp);
                 ui->treeWidget->addTopLevelItem(item);
             }
@@ -121,7 +127,7 @@ void MainWindow::on_pushButton_clicked()
         QStringList pathes = QFileDialog::getOpenFileNames(
                     this,
                     tr("Выберите один или несколько файлов"),
-                    ".",
+                    "/",
                     "Любые файлы (*.*)"
                     );
         for (int i = 0; i < pathes.size(); ++i)
@@ -129,18 +135,55 @@ void MainWindow::on_pushButton_clicked()
             if (!pathes.at(i).isEmpty())
             {
                 QVariant itemData = selectedItems.at(0)->data(0, Qt::UserRole + 1);
-                Application App = itemData.value<Application>();
-                BackUper Bcpr(App, pathes.at(i).toStdWString());
+                Application *App = itemData.value<Application*>();
+                BackUper *Bcpr = new BackUper(App, pathes.at(i).toStdWString());
                 arr.push_back(Bcpr);
                 QTreeWidgetItem *item = new QTreeWidgetItem(); // Creating leaves
-                QString name = QString::fromWCharArray(Bcpr.GetFile().GetName().c_str());
+                QString name = QString::fromWCharArray(Bcpr->GetFile().GetName().c_str());
                 item->setText(0, name);
+                item->setText(1, "<Путь до облака отсутствует>");
                 QVariant qvBcpr = QVariant::fromValue(Bcpr);
                 item->setData(0,Qt::UserRole+1,qvBcpr);
-                item->setTextColor(0,Qt::darkRed);
-                item->setToolTip(0, "Добавьте Облачную папку");
+                item->setTextColor(1,Qt::darkRed);
+                item->setToolTip(1, "Добавьте Облачную папку");
                 selectedItems.at(0)->addChild(item);
                 selectedItems.at(0)->setExpanded(1);
+            }
+        }
+    }
+}
+
+void MainWindow::on_pushButton_2_clicked()
+{
+    QList<QTreeWidgetItem *> selectedItems = ui->treeWidget->selectedItems();
+    QString dir = QFileDialog::getExistingDirectory(this, tr("Выберите папку"),
+                                                 "/",
+                                                 QFileDialog::ShowDirsOnly
+                                                 | QFileDialog::DontResolveSymlinks);
+    if (!dir.isEmpty())
+    {
+        for (int i = 0; i < selectedItems.size(); ++i)
+        {
+            if (selectedItems.at(i)->parent()) // Child
+            {
+                QVariant itemData = selectedItems.at(i)->data(0, Qt::UserRole+1);
+                BackUper *Bcpr = itemData.value<BackUper*>();
+                Bcpr->GetFile().SetCloudFolder(dir.toStdWString());
+                selectedItems[i]->setText(1, dir);
+                selectedItems[i]->setTextColor(1, Qt::darkGreen);
+                selectedItems[i]->setToolTip(1, "Файл синхронизируется");
+            }
+            else // Parent
+            {
+                for (int j = 0; j < selectedItems.at(i)->childCount(); ++j)
+                {
+                    QVariant itemData = selectedItems.at(i)->child(j)->data(0, Qt::UserRole+1);
+                    BackUper *Bcpr = itemData.value<BackUper*>();
+                    Bcpr->GetFile().SetCloudFolder(dir.toStdWString());
+                    selectedItems.at(i)->child(j)->setText(1, dir);
+                    selectedItems.at(i)->child(j)->setTextColor(1, Qt::darkGreen);
+                    selectedItems.at(i)->child(j)->setToolTip(1, "Файл синхронизируется");
+                }
             }
         }
     }
