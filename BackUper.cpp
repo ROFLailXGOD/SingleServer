@@ -27,6 +27,11 @@ Application BackUper::GetApp() const
     return *App;
 }
 
+void BackUper::SetSynch(bool arg)
+{
+    bSynch = arg;
+}
+
 bool BackUper::isSynched()
 {
     return bSynch;

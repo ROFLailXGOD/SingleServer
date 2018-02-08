@@ -8,6 +8,7 @@
 #include <QFileDialog>
 #include <QVariant>
 #include <QDebug>
+#include <QMessageBox>
 
 #include <string>
 
@@ -37,16 +38,19 @@ void MainWindow::MainLoop()
 {
     for (int i = 0; i < arr.size(); ++i)
     {
-        if (arr.at(i)->bHasLinkedApp)
+        if (arr.at(i)->isSynched())
         {
-            if (!arr.at(i)->GetApp().IsRunning()) // Making sure that App isn't running
+            if (arr.at(i)->bHasLinkedApp)
             {
-//                (arr[i].GetFile()).UpdateFile();
+                if (!arr.at(i)->GetApp().IsRunning()) // Making sure that App isn't running
+                {
+                    arr[i]->GetFile().UpdateFile();
+                }
             }
-        }
-        else
-        {
-//            (arr[i].GetFile()).UpdateFile();
+            else
+            {
+                arr[i]->GetFile().UpdateFile();
+            }
         }
     }
 }
@@ -86,11 +90,15 @@ void MainWindow::Selector()
             }
         }
         ui->pushButton_2->setEnabled(1);
+        ui->pushButton_3->setEnabled(1);
+        ui->pushButton_4->setEnabled(1);
     }
     else
     {
         ui->pushButton->setText("Добавить приложения");
         ui->pushButton_2->setEnabled(0);
+        ui->pushButton_3->setEnabled(0);
+        ui->pushButton_4->setEnabled(0);
     }
 }
 
@@ -169,6 +177,7 @@ void MainWindow::on_pushButton_2_clicked()
                 QVariant itemData = selectedItems.at(i)->data(0, Qt::UserRole+1);
                 BackUper *Bcpr = itemData.value<BackUper*>();
                 Bcpr->GetFile().SetCloudFolder(dir.toStdWString());
+                Bcpr->SetSynch(1);
                 selectedItems[i]->setText(1, dir);
                 selectedItems[i]->setTextColor(1, Qt::darkGreen);
                 selectedItems[i]->setToolTip(1, "Файл синхронизируется");
@@ -180,9 +189,94 @@ void MainWindow::on_pushButton_2_clicked()
                     QVariant itemData = selectedItems.at(i)->child(j)->data(0, Qt::UserRole+1);
                     BackUper *Bcpr = itemData.value<BackUper*>();
                     Bcpr->GetFile().SetCloudFolder(dir.toStdWString());
+                    Bcpr->SetSynch(1);
                     selectedItems.at(i)->child(j)->setText(1, dir);
                     selectedItems.at(i)->child(j)->setTextColor(1, Qt::darkGreen);
                     selectedItems.at(i)->child(j)->setToolTip(1, "Файл синхронизируется");
+                }
+            }
+        }
+    }
+}
+
+void MainWindow::on_pushButton_3_clicked()
+{
+    QMessageBox::StandardButton reply;
+    reply = QMessageBox::question(this, "", "Вы действительно хотите удалить выделенные файлы?",
+                                  QMessageBox::Yes | QMessageBox::No);
+    if (reply == QMessageBox::Yes)
+    {
+        QList<QTreeWidgetItem *> selectedItems = ui->treeWidget->selectedItems();
+        for (int i = 0; i < selectedItems.size(); ++i)
+        {
+            if (selectedItems.at(i)->parent()) // Child
+            {
+                QVariant itemData = selectedItems.at(i)->data(0, Qt::UserRole+1);
+                BackUper *Bcpr = itemData.value<BackUper*>();
+                arr.removeOne(Bcpr);
+                delete Bcpr;
+                delete selectedItems[i];
+            }
+            else // Parent
+            {
+                for (int j = 0; j < selectedItems.at(i)->childCount(); ++j)
+                {
+                    QVariant itemData = selectedItems.at(i)->child(j)->data(0, Qt::UserRole+1);
+                    BackUper *Bcpr = itemData.value<BackUper*>();
+                    arr.removeOne(Bcpr);
+                    delete Bcpr;
+                }
+                delete selectedItems[i];
+            }
+        }
+    }
+}
+
+void MainWindow::on_pushButton_4_clicked()
+{
+    QList<QTreeWidgetItem *> selectedItems = ui->treeWidget->selectedItems();
+    for (int i = 0; i < selectedItems.size(); ++i)
+    {
+        if (selectedItems.at(i)->parent()) // Child
+        {
+            QVariant itemData = selectedItems.at(i)->data(0, Qt::UserRole+1);
+            BackUper *Bcpr = itemData.value<BackUper*>();
+            if (selectedItems.at(i)->textColor(1) != Qt::darkRed)
+            {
+                if (Bcpr->isSynched())
+                {
+                    Bcpr->SetSynch(0);
+                    selectedItems[i]->setTextColor(1, Qt::darkYellow);
+                    selectedItems[i]->setToolTip(1, "Синхронизация приостановлена");
+                }
+                else
+                {
+                    Bcpr->SetSynch(1);
+                    selectedItems[i]->setTextColor(1, Qt::darkGreen);
+                    selectedItems[i]->setToolTip(1, "Файл синхронизируется");
+                }
+            }
+        }
+        else // Parent
+        {
+            for (int j = 0; j < selectedItems.at(i)->childCount(); ++j)
+            {
+                QVariant itemData = selectedItems.at(i)->child(j)->data(0, Qt::UserRole+1);
+                BackUper *Bcpr = itemData.value<BackUper*>();
+                if (selectedItems.at(i)->child(j)->textColor(1) != Qt::darkRed)
+                {
+                    if (Bcpr->isSynched())
+                    {
+                        Bcpr->SetSynch(0);
+                        selectedItems.at(i)->child(j)->setTextColor(1, Qt::darkYellow);
+                        selectedItems.at(i)->child(j)->setToolTip(1, "Синхронизация приостановлена");
+                    }
+                    else
+                    {
+                        Bcpr->SetSynch(1);
+                        selectedItems.at(i)->child(j)->setTextColor(1, Qt::darkGreen);
+                        selectedItems.at(i)->child(j)->setToolTip(1, "Файл синхронизируется");
+                    }
                 }
             }
         }

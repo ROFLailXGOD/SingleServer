@@ -18,6 +18,7 @@ public:
 
 	File& GetFile();
 	Application GetApp() const;
+    void SetSynch(bool);
 
     bool isSynched(); // Is file synched?
 };
