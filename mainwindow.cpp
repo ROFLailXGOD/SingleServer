@@ -9,6 +9,7 @@
 #include <QVariant>
 #include <QDebug>
 #include <QMessageBox>
+#include <QCloseEvent>
 
 #include <string>
 
@@ -22,6 +23,7 @@ MainWindow::MainWindow(QWidget *parent) :
 
     QTimer *mainTimer = new QTimer(this);
     connect(mainTimer, SIGNAL(timeout()), this, SLOT(MainLoop()));
+    connect(mainTimer, SIGNAL(timeout()), this, SLOT(SaveData()));
     mainTimer->start(15000);
 
     connect(ui->treeWidget, SIGNAL(itemSelectionChanged()), this, SLOT(Selector()));
@@ -102,8 +104,41 @@ void MainWindow::Selector()
     }
 }
 
+void MainWindow::SaveData()
+{
+    QString path = "data.bin";
+    QFile data(path);
+    if (data.open(QIODevice::WriteOnly))
+    {
+        QDataStream out(&data);
+        out << arr;
+        data.close();
+    }
+}
+
+void MainWindow::LoadData()
+{
+    QString path = "data.bin";
+    QFile data(path);
+    if (data.exists())
+    {
+        QDataStream in(&data);
+//        in >> arr;
+        data.close();
+    }
+}
+
+void MainWindow::closeEvent(QCloseEvent *event)
+{
+    event->ignore();
+    SaveData();
+    event->accept();
+}
+
 void MainWindow::on_pushButton_clicked()
 {
+    SaveData();
+
     QList<QTreeWidgetItem *> selectedItems = ui->treeWidget->selectedItems();
     if (ui->pushButton->text() == "Добавить приложения")
     {

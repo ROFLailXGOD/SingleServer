@@ -2,6 +2,7 @@
 #include <string>
 #include <windows.h>
 #include <QDebug>
+#include <QString>
 
 File::File(){}
 
@@ -193,4 +194,14 @@ bool File::SetBackUpsFolder(std::wstring path)
         qInfo() << "Your path is broken";
 		return 0;
 	}
+}
+
+QDataStream &operator <<(QDataStream& out, const File& file)
+{
+//    out << file.path;
+//    out << file.name;
+//    out << file.BackUpsFolder;
+//    out << file.CloudFolder;
+//    out << file.time;
+    return out;
 }

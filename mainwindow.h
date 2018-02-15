@@ -21,6 +21,8 @@ public:
 private slots:
     void MainLoop();
     void Selector();
+    void SaveData();
+    void LoadData();
 
     void on_pushButton_clicked();
 
@@ -31,6 +33,7 @@ private slots:
     void on_pushButton_3_clicked();
 
 private:
+    void closeEvent(QCloseEvent *event) override;
     Ui::MainWindow *ui;
 };
 

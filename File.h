@@ -1,5 +1,6 @@
 #pragma once
 #include <string>
+#include <QDataStream>
 class File
 {
 private:
@@ -26,3 +27,6 @@ public:
 
 	bool UpdateFile(); // Updating files
 };
+
+QDataStream &operator<<(QDataStream&, const File&);
+QDataStream &operator>>(QDataStream&, File&);
