@@ -2,7 +2,7 @@
 #define MAINWINDOW_H
 
 #include <QMainWindow>
-#include "BackUper.h"
+#include "File.h"
 
 namespace Ui {
 class MainWindow;
@@ -16,10 +16,9 @@ public:
     explicit MainWindow(QWidget *parent = 0);
     ~MainWindow();
 
-    QList<BackUper*> arr;
+    QList<File*> arr;
 
 private slots:
-    void MainLoop();
     void Selector();
     void SaveData();
     void LoadData();

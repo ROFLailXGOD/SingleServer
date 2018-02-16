@@ -196,6 +196,16 @@ bool File::SetBackUpsFolder(std::wstring path)
 	}
 }
 
+void File::SetSynch(bool arg)
+{
+    bSynch = arg;
+}
+
+bool File::isSynched()
+{
+    return bSynch;
+}
+
 QDataStream &operator <<(QDataStream& out, const File& file)
 {
 //    out << file.path;

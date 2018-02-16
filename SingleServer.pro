@@ -26,14 +26,10 @@ DEFINES += QT_DEPRECATED_WARNINGS
 SOURCES += \
         main.cpp \
         mainwindow.cpp \
-    Application.cpp \
-    BackUper.cpp \
     File.cpp
 
 HEADERS += \
         mainwindow.h \
-    Application.h \
-    BackUper.h \
     File.h
 
 FORMS += \

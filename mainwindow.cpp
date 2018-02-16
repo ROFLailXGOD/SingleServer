@@ -1,10 +1,7 @@
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
-#include "Application.h"
 #include "File.h"
-#include "BackUper.h"
 
-#include <QTimer>
 #include <QFileDialog>
 #include <QVariant>
 #include <QDebug>
@@ -21,11 +18,6 @@ MainWindow::MainWindow(QWidget *parent) :
 
     arr.reserve(100);
 
-    QTimer *mainTimer = new QTimer(this);
-    connect(mainTimer, SIGNAL(timeout()), this, SLOT(MainLoop()));
-    connect(mainTimer, SIGNAL(timeout()), this, SLOT(SaveData()));
-    mainTimer->start(15000);
-
     connect(ui->treeWidget, SIGNAL(itemSelectionChanged()), this, SLOT(Selector()));
 
     ui->treeWidget->setColumnWidth(0, 200);
@@ -34,27 +26,6 @@ MainWindow::MainWindow(QWidget *parent) :
 MainWindow::~MainWindow()
 {
     delete ui;
-}
-
-void MainWindow::MainLoop()
-{
-    for (int i = 0; i < arr.size(); ++i)
-    {
-        if (arr.at(i)->isSynched())
-        {
-            if (arr.at(i)->bHasLinkedApp)
-            {
-                if (!arr.at(i)->GetApp().IsRunning()) // Making sure that App isn't running
-                {
-                    arr[i]->GetFile().UpdateFile();
-                }
-            }
-            else
-            {
-                arr[i]->GetFile().UpdateFile();
-            }
-        }
-    }
 }
 
 void MainWindow::Selector()
@@ -154,13 +125,13 @@ void MainWindow::on_pushButton_clicked()
             {
                 QFileInfo fileinfo(pathes.at(i));
                 QString name = fileinfo.fileName();
-                Application *App = new Application(name.toStdWString());
+//                Application *App = new Application(name.toStdWString());
                 QTreeWidgetItem *item = new QTreeWidgetItem(); // Creating Roots
                 item->setText(0, name);
-                QVariant RootApp = QVariant::fromValue(App);
+//                QVariant RootApp = QVariant::fromValue(App);
 
 
-                item->setData(0,Qt::UserRole+1,RootApp);
+//                item->setData(0,Qt::UserRole+1,RootApp);
                 ui->treeWidget->addTopLevelItem(item);
             }
         }
@@ -177,16 +148,16 @@ void MainWindow::on_pushButton_clicked()
         {
             if (!pathes.at(i).isEmpty())
             {
-                QVariant itemData = selectedItems.at(0)->data(0, Qt::UserRole + 1);
-                Application *App = itemData.value<Application*>();
-                BackUper *Bcpr = new BackUper(App, pathes.at(i).toStdWString());
-                arr.push_back(Bcpr);
+//                QVariant itemData = selectedItems.at(0)->data(0, Qt::UserRole + 1);
+//                Application *App = itemData.value<Application*>();
+                File *file = new File(pathes.at(i).toStdWString());
+                arr.push_back(file);
                 QTreeWidgetItem *item = new QTreeWidgetItem(); // Creating leaves
-                QString name = QString::fromWCharArray(Bcpr->GetFile().GetName().c_str());
+                QString name = QString::fromWCharArray(file->GetName().c_str());
                 item->setText(0, name);
                 item->setText(1, "<Путь до облака отсутствует>");
-                QVariant qvBcpr = QVariant::fromValue(Bcpr);
-                item->setData(0,Qt::UserRole+1,qvBcpr);
+                QVariant qvFile = QVariant::fromValue(file);
+                item->setData(0,Qt::UserRole+1,qvFile);
                 item->setTextColor(1,Qt::darkRed);
                 item->setToolTip(1, "Добавьте Облачную папку");
                 selectedItems.at(0)->addChild(item);
@@ -210,9 +181,9 @@ void MainWindow::on_pushButton_2_clicked()
             if (selectedItems.at(i)->parent()) // Child
             {
                 QVariant itemData = selectedItems.at(i)->data(0, Qt::UserRole+1);
-                BackUper *Bcpr = itemData.value<BackUper*>();
-                Bcpr->GetFile().SetCloudFolder(dir.toStdWString());
-                Bcpr->SetSynch(1);
+                File *file = itemData.value<File*>();
+                file->SetCloudFolder(dir.toStdWString());
+                file->SetSynch(1);
                 selectedItems[i]->setText(1, dir);
                 selectedItems[i]->setTextColor(1, Qt::darkGreen);
                 selectedItems[i]->setToolTip(1, "Файл синхронизируется");
@@ -222,9 +193,9 @@ void MainWindow::on_pushButton_2_clicked()
                 for (int j = 0; j < selectedItems.at(i)->childCount(); ++j)
                 {
                     QVariant itemData = selectedItems.at(i)->child(j)->data(0, Qt::UserRole+1);
-                    BackUper *Bcpr = itemData.value<BackUper*>();
-                    Bcpr->GetFile().SetCloudFolder(dir.toStdWString());
-                    Bcpr->SetSynch(1);
+                    File *file = itemData.value<File*>();
+                    file->SetCloudFolder(dir.toStdWString());
+                    file->SetSynch(1);
                     selectedItems.at(i)->child(j)->setText(1, dir);
                     selectedItems.at(i)->child(j)->setTextColor(1, Qt::darkGreen);
                     selectedItems.at(i)->child(j)->setToolTip(1, "Файл синхронизируется");
@@ -247,9 +218,9 @@ void MainWindow::on_pushButton_3_clicked()
             if (selectedItems.at(i)->parent()) // Child
             {
                 QVariant itemData = selectedItems.at(i)->data(0, Qt::UserRole+1);
-                BackUper *Bcpr = itemData.value<BackUper*>();
-                arr.removeOne(Bcpr);
-                delete Bcpr;
+                File *file = itemData.value<File*>();
+                arr.removeOne(file);
+                delete file;
                 delete selectedItems[i];
             }
             else // Parent
@@ -257,9 +228,9 @@ void MainWindow::on_pushButton_3_clicked()
                 for (int j = 0; j < selectedItems.at(i)->childCount(); ++j)
                 {
                     QVariant itemData = selectedItems.at(i)->child(j)->data(0, Qt::UserRole+1);
-                    BackUper *Bcpr = itemData.value<BackUper*>();
-                    arr.removeOne(Bcpr);
-                    delete Bcpr;
+                    File *file = itemData.value<File*>();
+                    arr.removeOne(file);
+                    delete file;
                 }
                 delete selectedItems[i];
             }
@@ -275,18 +246,18 @@ void MainWindow::on_pushButton_4_clicked()
         if (selectedItems.at(i)->parent()) // Child
         {
             QVariant itemData = selectedItems.at(i)->data(0, Qt::UserRole+1);
-            BackUper *Bcpr = itemData.value<BackUper*>();
+            File *file = itemData.value<File*>();
             if (selectedItems.at(i)->textColor(1) != Qt::darkRed)
             {
-                if (Bcpr->isSynched())
+                if (file->isSynched())
                 {
-                    Bcpr->SetSynch(0);
+                    file->SetSynch(0);
                     selectedItems[i]->setTextColor(1, Qt::darkYellow);
                     selectedItems[i]->setToolTip(1, "Синхронизация приостановлена");
                 }
                 else
                 {
-                    Bcpr->SetSynch(1);
+                    file->SetSynch(1);
                     selectedItems[i]->setTextColor(1, Qt::darkGreen);
                     selectedItems[i]->setToolTip(1, "Файл синхронизируется");
                 }
@@ -297,18 +268,18 @@ void MainWindow::on_pushButton_4_clicked()
             for (int j = 0; j < selectedItems.at(i)->childCount(); ++j)
             {
                 QVariant itemData = selectedItems.at(i)->child(j)->data(0, Qt::UserRole+1);
-                BackUper *Bcpr = itemData.value<BackUper*>();
+                File *file = itemData.value<File*>();
                 if (selectedItems.at(i)->child(j)->textColor(1) != Qt::darkRed)
                 {
-                    if (Bcpr->isSynched())
+                    if (file->isSynched())
                     {
-                        Bcpr->SetSynch(0);
+                        file->SetSynch(0);
                         selectedItems.at(i)->child(j)->setTextColor(1, Qt::darkYellow);
                         selectedItems.at(i)->child(j)->setToolTip(1, "Синхронизация приостановлена");
                     }
                     else
                     {
-                        Bcpr->SetSynch(1);
+                        file->SetSynch(1);
                         selectedItems.at(i)->child(j)->setTextColor(1, Qt::darkGreen);
                         selectedItems.at(i)->child(j)->setToolTip(1, "Файл синхронизируется");
                     }
