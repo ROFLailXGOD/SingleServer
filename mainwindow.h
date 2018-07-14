@@ -17,6 +17,7 @@ public:
     ~MainWindow();
 
     QList<File*> arr;
+    QHash<QString, int> CatHash;
 
 private slots:
     void Selector();

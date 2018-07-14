@@ -16,7 +16,8 @@ MainWindow::MainWindow(QWidget *parent) :
 {
     ui->setupUi(this);
 
-    arr.reserve(100);
+    arr.reserve(1000);
+    LoadData();
 
     connect(ui->treeWidget, SIGNAL(itemSelectionChanged()), this, SLOT(Selector()));
 
@@ -93,9 +94,53 @@ void MainWindow::LoadData()
     QFile data(path);
     if (data.exists())
     {
-        QDataStream in(&data);
-//        in >> arr;
-        data.close();
+        if (data.open(QIODevice::ReadOnly))
+        {
+            {
+                QDataStream in(&data);
+                in >> arr;
+                data.close();
+            }
+        }
+    }
+    QString CurCategory;
+
+    for (int i = 0; i < arr.size(); ++i)
+    {
+        QTreeWidgetItem *item;
+        if (CurCategory != arr.at(i)->GetCategory())
+        {
+            CurCategory = arr.at(i)->GetCategory();
+            item = new QTreeWidgetItem();
+            item->setText(0, CurCategory);
+            ui->treeWidget->addTopLevelItem(item);
+            item->setExpanded(1);
+        }
+        QTreeWidgetItem *itm = new QTreeWidgetItem(item); // Creating leaves
+        QString name = arr.at(i)->GetName();
+        itm->setText(0, name);
+        if (!arr.at(i)->GetCFolder().isEmpty())
+        {
+            itm->setText(1, arr.at(i)->GetCFolder());
+            if (arr.at(i)->isSynched())
+            {
+                itm->setTextColor(1,Qt::darkGreen);
+                itm->setToolTip(1, "Файл синхронизируется");
+            }
+            else
+            {
+                itm->setTextColor(1,Qt::darkYellow);
+                itm->setToolTip(1, "Синхронизация приостановлена");
+            }
+        }
+        else
+        {
+            itm->setText(1, "<Путь до облака отсутствует>");
+            itm->setTextColor(1,Qt::darkRed);
+            itm->setToolTip(1, "Добавьте Облачную папку");
+        }
+        QVariant qvFile = QVariant::fromValue(arr.at(i));
+        itm->setData(0,Qt::UserRole+1,qvFile);
     }
 }
 
@@ -125,13 +170,14 @@ void MainWindow::on_pushButton_clicked()
             {
                 QFileInfo fileinfo(pathes.at(i));
                 QString name = fileinfo.fileName();
-//                Application *App = new Application(name.toStdWString());
                 QTreeWidgetItem *item = new QTreeWidgetItem(); // Creating Roots
                 item->setText(0, name);
-//                QVariant RootApp = QVariant::fromValue(App);
 
+                if (!CatHash.contains(name))
+                {
+                    CatHash.insert(name, 0);
+                }
 
-//                item->setData(0,Qt::UserRole+1,RootApp);
                 ui->treeWidget->addTopLevelItem(item);
             }
         }
@@ -148,12 +194,24 @@ void MainWindow::on_pushButton_clicked()
         {
             if (!pathes.at(i).isEmpty())
             {
-//                QVariant itemData = selectedItems.at(0)->data(0, Qt::UserRole + 1);
-//                Application *App = itemData.value<Application*>();
-                File *file = new File(pathes.at(i).toStdWString());
-                arr.push_back(file);
+                File *file = new File(pathes.at(i));
+                file->SetCategory(selectedItems.at(0)->text(0));
+
+                int amount;
+                int position = -1;
+                amount = CatHash.value(selectedItems.at(0)->text(0));
+                CatHash.insert(selectedItems.at(0)->text(0), amount+1);
+                QHash<QString, int>::const_iterator j = CatHash.constBegin();
+                while (j != CatHash.constFind(selectedItems.at(0)->text(0)))
+                {
+                    position += j.value();
+                    ++j;
+                }
+                position += j.value();
+
+                arr.insert(position, file);
                 QTreeWidgetItem *item = new QTreeWidgetItem(); // Creating leaves
-                QString name = QString::fromWCharArray(file->GetName().c_str());
+                QString name = file->GetName();
                 item->setText(0, name);
                 item->setText(1, "<Путь до облака отсутствует>");
                 QVariant qvFile = QVariant::fromValue(file);
@@ -182,7 +240,7 @@ void MainWindow::on_pushButton_2_clicked()
             {
                 QVariant itemData = selectedItems.at(i)->data(0, Qt::UserRole+1);
                 File *file = itemData.value<File*>();
-                file->SetCloudFolder(dir.toStdWString());
+                file->SetCloudFolder(dir);
                 file->SetSynch(1);
                 selectedItems[i]->setText(1, dir);
                 selectedItems[i]->setTextColor(1, Qt::darkGreen);
@@ -194,7 +252,7 @@ void MainWindow::on_pushButton_2_clicked()
                 {
                     QVariant itemData = selectedItems.at(i)->child(j)->data(0, Qt::UserRole+1);
                     File *file = itemData.value<File*>();
-                    file->SetCloudFolder(dir.toStdWString());
+                    file->SetCloudFolder(dir);
                     file->SetSynch(1);
                     selectedItems.at(i)->child(j)->setText(1, dir);
                     selectedItems.at(i)->child(j)->setTextColor(1, Qt::darkGreen);

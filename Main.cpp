@@ -4,10 +4,10 @@
 
 int main(int argc, char *argv[])
 {
+    QDir::setCurrent(QCoreApplication::applicationDirPath());
     QApplication a(argc, argv);
     MainWindow w;
     w.show();
-    QDir::setCurrent(QCoreApplication::applicationDirPath());
 
     return a.exec();
 }
