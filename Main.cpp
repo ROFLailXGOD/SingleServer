@@ -1,13 +1,10 @@
 #include "mainwindow.h"
 #include <QApplication>
-#include <string>
-#include <vector>
-#include "Application.h"
-#include "File.h"
-#include "BackUper.h"
+#include <QDir>
 
 int main(int argc, char *argv[])
 {
+    QDir::setCurrent(QCoreApplication::applicationDirPath());
     QApplication a(argc, argv);
     MainWindow w;
     w.show();

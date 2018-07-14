@@ -1,18 +1,19 @@
 #include "File.h"
-#include <string>
 #include <windows.h>
 #include <QDebug>
 
 File::File(){}
 
-File::File(std::wstring path)
+File::File(QString path)
 {
 	SetPathAndName(path);
+    bSynch = 0;
 }
+
 
 bool File::SetLWTime()
 {
-	HANDLE hFile = CreateFile(path.c_str(), GENERIC_READ, FILE_SHARE_READ, NULL,
+    HANDLE hFile = CreateFile(path.toStdWString().c_str(), GENERIC_READ, FILE_SHARE_READ, NULL,
 		OPEN_ALWAYS, 0, NULL);
 
 	if (hFile == INVALID_HANDLE_VALUE)
@@ -39,18 +40,13 @@ bool File::SetLWTime()
 	return 1;
 }
 
-double File::GetLWTime() const
+bool File::SetPathAndName(QString dir)
 {
-	return time;
-}
-
-bool File::SetPathAndName(std::wstring dir)
-{
-	path = dir;
-	std::size_t i = dir.find_last_of(L"/\\");
+    path = dir;
+    int i = dir.lastIndexOf("/");
 	if (i >= 0)
 	{
-		name = dir.substr(i + 1); // Name
+        name = dir.right(dir.size()-i-1); // Name
 		return 1;
 	}
 	else
@@ -60,20 +56,40 @@ bool File::SetPathAndName(std::wstring dir)
 	}
 }
 
-std::wstring File::GetPath() const
+QString File::GetPath() const
 {
 	return path;
 }
 
-std::wstring File::GetName() const
+QString File::GetName() const
 {
 	return name;
+}
+
+QString File::GetBUFolder() const
+{
+    return BackUpsFolder;
+}
+
+QString File::GetCFolder() const
+{
+    return CloudFolder;
+}
+
+QString File::GetCategory() const
+{
+    return Category;
+}
+
+double File::GetLWTime() const
+{
+    return time;
 }
 
 // Creating BackUpFolder only if not already exists
 bool File::CreateBackUpsFolder() const
 {
-	bool flag = CreateDirectory(BackUpsFolder.c_str(), NULL);
+    bool flag = CreateDirectory(BackUpsFolder.toStdWString().c_str(), NULL);
 	if (!flag)
 	{
 		if (GetLastError() == ERROR_ALREADY_EXISTS)
@@ -96,11 +112,11 @@ bool File::CreateBackUpsFolder() const
 // Creating a backup
 bool File::CreateBackUp() const
 {
-	std::wstring name = GetName();
-	std::wstring path = GetPath();
-	std::wstring NewName = BackUpsFolder + L"\\" + name + std::to_wstring(GetLWTime());
+    QString name = GetName();
+    QString path = GetPath();
+    QString NewName = BackUpsFolder + "/" + name + QString::number(time);
 
-	if (CopyFile(path.c_str(), NewName.c_str(), 0))
+    if (CopyFile(path.toStdWString().c_str(), NewName.toStdWString().c_str(), 0))
 	{
         qInfo() << "New backup has been successfully created";
 		return 1;
@@ -115,8 +131,8 @@ bool File::CreateBackUp() const
 // Updating files
 bool File::UpdateFile()
 {
-	std::wstring name = GetName();
-	std::wstring NewName = CloudFolder + L"\\" + name;
+    QString name = GetName();
+    QString NewName = CloudFolder + "/" + name;
 	File CloudSave(NewName);
 	CloudSave.SetLWTime();
 	SetLWTime();
@@ -131,7 +147,7 @@ bool File::UpdateFile()
 		{
 			if (GetLWTime() > CloudSave.GetLWTime())
 			{
-				if (CopyFile(GetPath().c_str(), CloudSave.GetPath().c_str(), 0))
+                if (CopyFile(GetPath().toStdWString().c_str(), CloudSave.GetPath().toStdWString().c_str(), 0))
 				{
                     qInfo() << "File has been successfully updated (stored to Cloud Folder)";
 					return 1;
@@ -144,7 +160,7 @@ bool File::UpdateFile()
 			}
 			else if (GetLWTime() < CloudSave.GetLWTime())
 			{
-				if (CopyFile(CloudSave.GetPath().c_str(), GetPath().c_str(), 0))
+                if (CopyFile(CloudSave.GetPath().toStdWString().c_str(), GetPath().toStdWString().c_str(), 0))
 				{
                     qInfo() << "File has been successfully updated (stored from Cloud Folder)";
 					return 1;
@@ -163,13 +179,13 @@ bool File::UpdateFile()
 	}
 }
 
-bool File::SetCloudFolder(std::wstring path)
+bool File::SetCloudFolder(QString path)
 {
-	std::size_t i = path.find_last_of(L"/\\");
+    int i = path.lastIndexOf("/");
 	if (i >= 0)
 	{
 		CloudFolder = path;
-		BackUpsFolder = path + L"\\BackUps";
+        BackUpsFolder = path + "/BackUps";
 		CreateBackUpsFolder();
 		return 1;
 	}
@@ -180,9 +196,9 @@ bool File::SetCloudFolder(std::wstring path)
 	}
 }
 
-bool File::SetBackUpsFolder(std::wstring path)
+bool File::SetBackUpsFolder(QString path)
 {
-	std::size_t i = path.find_last_of(L"/\\");
+    int i = path.lastIndexOf("/");
 	if (i >= 0)
 	{
 		BackUpsFolder = path;
@@ -194,3 +210,55 @@ bool File::SetBackUpsFolder(std::wstring path)
 		return 0;
 	}
 }
+
+void File::SetSynch(bool arg)
+{
+    bSynch = arg;
+}
+
+bool File::isSynched() const
+{
+    return bSynch;
+}
+
+void File::SetCategory(QString cat)
+{
+    Category = cat;
+}
+
+QDataStream &operator <<(QDataStream& out, const File *file)
+{
+    out << file->GetPath();
+    out << file->GetName();
+    out << file->GetBUFolder();
+    out << file->GetCFolder();
+    out << file->GetCategory();
+    out << file->isSynched();
+    return out;
+}
+
+QDataStream &operator >>(QDataStream& in, File* &file)
+{
+    QString PathAndName;
+    QString Name;
+    QString BackUpsFolder;
+    QString CloudFolder;
+    QString Category;
+    bool bSynch;
+
+    in >> PathAndName;
+    in >> Name;
+    PathAndName += "/" + Name;
+    file = new File(PathAndName);
+    in >> BackUpsFolder;
+    in >> CloudFolder;
+    in >> Category;
+    in >> bSynch;
+
+    file->SetBackUpsFolder(BackUpsFolder);
+    file->SetCloudFolder(CloudFolder);
+    file->SetCategory(Category);
+    file->SetSynch(bSynch);
+    return in;
+}
+
